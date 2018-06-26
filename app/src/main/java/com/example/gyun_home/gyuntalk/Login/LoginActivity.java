@@ -10,15 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.example.gyun_home.gyuntalk.Main.MainActivity;
 import com.example.gyun_home.gyuntalk.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText id_Et;
     private EditText password_Et;
@@ -29,21 +32,53 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseRemoteConfig firebaseRemoteConfig;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;   //로그인이 됐는지 안됐는지 체크하는 리스너 , 다음으로 넘길수 있음
+
+    private String splash_background;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        setStatusbar();
+        init();
+        setFirebase();
+
+    }
+
+    private void setFirebase(){
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.signOut(); //로그인 리소스가 남아있을 경우 로그아웃을 해준다
+
+        //로그인이 됐거나 했을경우(change)
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null){
+                    //로그인
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else {
+                    //로그아웃
+                }
+            }
+        };
+    }
+
+    private void setStatusbar(){
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
         //String splash_background = mFirebaseRemoteConfig.getString(getString(R.string.rc_color));
-        String splash_background = "#aabbcc";
+        splash_background = "#aabbcc";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.parseColor(splash_background));
         }
+    }
 
+    private void init(){
         id_Et = (EditText)findViewById(R.id.loginactivity_edittext_id);
         password_Et = (EditText)findViewById(R.id.loginactivity_edittext_password);
 
@@ -52,19 +87,44 @@ public class LoginActivity extends AppCompatActivity{
         loginBtn.setBackgroundColor(Color.parseColor(splash_background));
         signupBtn.setBackgroundColor(Color.parseColor(splash_background));
 
-        signupBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        loginBtn.setOnClickListener(this);
+        signupBtn.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.loginactivity_button_login:
+                loginEvent();
+                break;
+            case R.id.loginactivity_button_signup:
                 startActivity(new Intent(LoginActivity.this,SignupActivity.class));
-            }
-        });
+                break;
+        }
     }
     private void loginEvent(){
         firebaseAuth.signInWithEmailAndPassword(id_Et.getText().toString(),password_Et.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 //로그인이 완료되었는지만 확인해주는 리스너
+                if(!task.isSuccessful()){   //로그인 실패한 부분
+                    Toast.makeText(getApplicationContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(authStateListener);   //리스너를 달아주자
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        firebaseAuth.removeAuthStateListener(authStateListener);    //리스너를 때주자
+    }
+
+
 }

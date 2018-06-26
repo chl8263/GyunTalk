@@ -1,5 +1,6 @@
 package com.example.gyun_home.gyuntalk.chat;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,12 +13,29 @@ import android.widget.EditText;
 import com.example.gyun_home.gyuntalk.R;
 import com.example.gyun_home.gyuntalk.adapter.MessageActivityRecyclerViewAdapter;
 import com.example.gyun_home.gyuntalk.model.ChatModel;
+import com.example.gyun_home.gyuntalk.model.NotificationModel;
+import com.example.gyun_home.gyuntalk.model.UserModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MessageActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -29,6 +47,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     private String chatRoomUid;
 
     private RecyclerView recyclerView;
+
+    private UserModel destinationUserModel = MessageActivityRecyclerViewAdapter.userModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,19 +90,52 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                     ChatModel.Comment comment = new ChatModel.Comment();
                     comment.uid = uid;
                     comment.message = editText.getText().toString();
+                    comment.timestamp = ServerValue.TIMESTAMP;  //firebase에서 제공하는 서버 시간
 
                     FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            editText.setText("");
-                        }
-                    });
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    sendGcm();
+                                    editText.setText("");
+                                }
+                            });
                 }
 
                 break;
         }
     }
+
+    private void sendGcm(){
+        Gson gson = new Gson();
+
+        NotificationModel notificationModel = new NotificationModel();
+        notificationModel.to = destinationUserModel.pushToken;
+        notificationModel.notification.title = "보낸이 아이디";
+        notificationModel.notification.text = editText.getText().toString();
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"),gson.toJson(notificationModel));
+
+        Request request = new Request.Builder().header("Content-Type","application/json")
+                .addHeader("Authorization","key=AIzaSyBoNGZldnwBhLUKm6G75wcLxcWOE3NIGqU")
+                .url("https://gcm-http.googleapis.com/gcm/send")
+                .post(requestBody)
+                .build();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
+    }
+
+
 
     private void checkChatRoom() {
         FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/" + uid).equalTo(true) //orderBychild -> 중복검사
@@ -107,5 +160,12 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
 
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        overridePendingTransition(R.anim.fromleft,R.anim.toright);  //finish 밑에 들어가야 anmation 이 적용 가능하다
     }
 }

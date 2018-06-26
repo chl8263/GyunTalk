@@ -22,7 +22,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -31,8 +34,10 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
     private String uid;
     private String destiantionuid;
     private ArrayList<ChatModel.Comment> comments;
-    private UserModel userModel;
+    public static UserModel userModel;
     private RecyclerView recyclerView;
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+
 
     public MessageActivityRecyclerViewAdapter(Context context, String chatRoomUid, String destiantionuid,String uid,RecyclerView recyclerView) {
         this.context = context;
@@ -111,7 +116,13 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
             messageViewHolder.textView_message.setTextSize(25);
             messageViewHolder.linearLayout_main.setGravity(Gravity.LEFT);
         }
-
+        //unix time 을 현재 시간으로 컨버팅 하는 부분
+        long unixTime = (long) comments.get(position).timestamp;
+        Date date = new Date(unixTime);
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        String time = simpleDateFormat.format(date);
+        //////////////////////////////
+        messageViewHolder.textView_timeStamp.setText(time);
         ((MessageViewHolder) holder).textView_message.setText(comments.get(position).message);
     }
 
@@ -127,6 +138,7 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
         public ImageView imageView_profile;
         public LinearLayout linearLayout_destination;
         public LinearLayout linearLayout_main;
+        public TextView textView_timeStamp;
         public MessageViewHolder(View view) {
             super(view);
             textView_message = (TextView) view.findViewById(R.id.messageItem_textView_message);
@@ -134,6 +146,7 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
             imageView_profile = (ImageView) view.findViewById(R.id.messageItem_imageView_profile);
             linearLayout_destination = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_destination);
             linearLayout_main = (LinearLayout)view.findViewById(R.id.messageItem_linearlayout_main);
+            textView_timeStamp = view.findViewById(R.id.messageItem_textView_timestamp);
         }
     }
 }

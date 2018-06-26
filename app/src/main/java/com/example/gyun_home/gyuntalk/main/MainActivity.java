@@ -10,10 +10,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.gyun_home.gyuntalk.fragment.AcountFragment;
+import com.example.gyun_home.gyuntalk.fragment.ChatFragment;
 import com.example.gyun_home.gyuntalk.fragment.PeopleFragment;
 import com.example.gyun_home.gyuntalk.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener;
 
     private PeopleFragment peopleFragment;
+    private ChatFragment chatFragment;
+    private AcountFragment acountFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +39,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initFragment();
+        passPushTokenToServer();
 
+    }
+
+    public void passPushTokenToServer(){     //firebase cloud message 보내는 부분
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String token = FirebaseInstanceId.getInstance().getToken();
+        Map<String,Object> map = new HashMap<>();
+        map.put("pushToken",token);
+
+        FirebaseDatabase.getInstance().getReference().child("users").child(uid).updateChildren(map);    //setValue 하면 기존을 지워서 안됨 이렇게 업뎃할것
     }
 
     public void initFragment() {
@@ -53,17 +72,18 @@ public class MainActivity extends AppCompatActivity {
         };
 
         peopleFragment = PeopleFragment.getInstance();
-
+        chatFragment = ChatFragment.getInstance();
+        acountFragment = AcountFragment.getInstance();
 
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.add(R.id.mainActivity_frameLayout, peopleFragment, "first");
-        //fragmentTransaction.add(R.id.mainActivity_frameLayout, secondFragment, "second");
-        //fragmentTransaction.add(R.id.mainActivity_frameLayout, thirdFragment, "third");
+        fragmentTransaction.add(R.id.mainActivity_frameLayout, chatFragment, "second");
+        fragmentTransaction.add(R.id.mainActivity_frameLayout, acountFragment, "third");
 
-        //fragmentTransaction.hide(secondFragment);
-        //fragmentTransaction.hide(thirdFragment);
+        fragmentTransaction.hide(chatFragment);
+        fragmentTransaction.hide(acountFragment);
         fragmentTransaction.commit();
 
         navigationView = (BottomNavigationView) findViewById(R.id.mainactivity_bottomNavigationView);

@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.Login;
+package com.example.gyun_home.gyuntalk.login;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.gyun_home.gyuntalk.Main.MainActivity;
+import com.example.gyun_home.gyuntalk.main.MainActivity;
 import com.example.gyun_home.gyuntalk.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

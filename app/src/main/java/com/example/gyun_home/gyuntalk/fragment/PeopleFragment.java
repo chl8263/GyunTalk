@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.Fragment;
+package com.example.gyun_home.gyuntalk.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.gyun_home.gyuntalk.Adapter.PeopleFragmentRecyclerViewAdapter;
+import com.example.gyun_home.gyuntalk.adapter.PeopleFragmentRecyclerViewAdapter;
 import com.example.gyun_home.gyuntalk.R;
 
 public class PeopleFragment extends Fragment{
@@ -34,7 +34,7 @@ public class PeopleFragment extends Fragment{
 
         recyclerView = (RecyclerView)view.findViewById(R.id.peoplefragment_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(inflater.getContext()));
-        recyclerView.setAdapter(new PeopleFragmentRecyclerViewAdapter());
+        recyclerView.setAdapter(new PeopleFragmentRecyclerViewAdapter(getContext()));
 
         return view;
     }

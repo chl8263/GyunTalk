@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.Splash;
+package com.example.gyun_home.gyuntalk.splash;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,13 +8,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import com.example.gyun_home.gyuntalk.BuildConfig;
 import com.example.gyun_home.gyuntalk.R;
-import com.example.gyun_home.gyuntalk.Login.LoginActivity;
+import com.example.gyun_home.gyuntalk.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;

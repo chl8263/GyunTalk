@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.Login;
+package com.example.gyun_home.gyuntalk.login;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,9 +15,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.gyun_home.gyuntalk.AnimEffect.CustomProgressActivity;
-import com.example.gyun_home.gyuntalk.AnimEffect.CustomProgressDialog;
-import com.example.gyun_home.gyuntalk.Model.UserModel;
+import com.example.gyun_home.gyuntalk.animEffect.CustomProgressDialog;
+import com.example.gyun_home.gyuntalk.model.UserModel;
 import com.example.gyun_home.gyuntalk.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -117,6 +116,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                     UserModel userModel = new UserModel();
                                     userModel.setUserName(name_Et.getText().toString());
                                     userModel.setProfileImageUrl(imageUrl);
+                                    userModel.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                                     FirebaseDatabase.getInstance().getReference().child("users").child(uid).setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {

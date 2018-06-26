@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.AnimEffect;
+package com.example.gyun_home.gyuntalk.animEffect;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;

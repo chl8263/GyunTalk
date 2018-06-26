@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.AnimEffect;
+package com.example.gyun_home.gyuntalk.animEffect;
 
 import android.app.ProgressDialog;
 import android.content.Context;

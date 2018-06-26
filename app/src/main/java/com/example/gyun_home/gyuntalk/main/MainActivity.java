@@ -1,4 +1,4 @@
-package com.example.gyun_home.gyuntalk.Main;
+package com.example.gyun_home.gyuntalk.main;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.gyun_home.gyuntalk.Fragment.PeopleFragment;
+import com.example.gyun_home.gyuntalk.fragment.PeopleFragment;
 import com.example.gyun_home.gyuntalk.R;
 
 import java.util.List;

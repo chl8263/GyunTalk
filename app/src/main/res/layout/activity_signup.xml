@@ -7,7 +7,7 @@
     >
 
     <ImageView
-        android:src="@drawable/ic_add_to_photos_black_24dp"
+        android:src="@drawable/signup_album"
         android:id="@+id/signupActivity_imageview_profile"
         android:layout_width="100dp"
         android:layout_height="100dp"

@@ -32,9 +32,11 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/darker_gray">
+                >
 
                 <TextView
+                    android:backgroundTint="@color/colorSel"
+                    android:background="@drawable/leftbubble"
                     android:layout_margin="10dp"
                     android:id="@+id/frienditem_textView_comment"
                     android:layout_width="wrap_content"
@@ -45,6 +47,8 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray" />

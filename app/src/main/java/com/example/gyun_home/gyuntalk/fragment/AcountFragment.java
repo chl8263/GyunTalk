@@ -62,7 +62,7 @@ public class AcountFragment  extends Fragment {
 
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                stringObjectMap.put("commnet",editText.getText().toString());
+                stringObjectMap.put("comment",editText.getText().toString());
 
                 FirebaseDatabase.getInstance().getReference().child("users").child(uid).updateChildren(stringObjectMap);
             }

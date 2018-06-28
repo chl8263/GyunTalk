@@ -9,9 +9,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.gyun_home.gyuntalk.fragment.AcountFragment;
 import com.example.gyun_home.gyuntalk.fragment.ChatFragment;
+import com.example.gyun_home.gyuntalk.fragment.EtcFragment;
 import com.example.gyun_home.gyuntalk.fragment.PeopleFragment;
 import com.example.gyun_home.gyuntalk.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private PeopleFragment peopleFragment;
     private ChatFragment chatFragment;
     private AcountFragment acountFragment;
+    private EtcFragment etcFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initFragment();
+        initStatusbar();
         passPushTokenToServer();
 
     }
@@ -66,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.action_account:
                         SelectNavView("third");
                         return true;
+                    case R.id.action_etc:
+                        SelectNavView("fourth");
+                        return true;
                 }
                 return false;
             }
@@ -74,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         peopleFragment = PeopleFragment.getInstance();
         chatFragment = ChatFragment.getInstance();
         acountFragment = AcountFragment.getInstance();
+        etcFragment = EtcFragment.getInstance();
 
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -81,9 +89,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.mainActivity_frameLayout, peopleFragment, "first");
         fragmentTransaction.add(R.id.mainActivity_frameLayout, chatFragment, "second");
         fragmentTransaction.add(R.id.mainActivity_frameLayout, acountFragment, "third");
+        fragmentTransaction.add(R.id.mainActivity_frameLayout, etcFragment, "fourth");
 
         fragmentTransaction.hide(chatFragment);
         fragmentTransaction.hide(acountFragment);
+        fragmentTransaction.hide(etcFragment);
         fragmentTransaction.commit();
 
         navigationView = (BottomNavigationView) findViewById(R.id.mainactivity_bottomNavigationView);
@@ -103,6 +113,12 @@ public class MainActivity extends AppCompatActivity {
         }
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();
+    }
+
+    private void initStatusbar() {
+        View view = getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
     }
 
 }

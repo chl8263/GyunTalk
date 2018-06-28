@@ -1,12 +1,15 @@
 package com.example.gyun_home.gyuntalk.chat;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -58,6 +61,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+
+        initStatusbar();
 
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();    //나
         destinationUid = getIntent().getStringExtra("destinationUid");  //상대
@@ -170,6 +175,18 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 });
     }
 
+    private void initStatusbar() {
+        View view = getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();

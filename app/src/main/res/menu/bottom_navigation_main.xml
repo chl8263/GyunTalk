@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_account_circle_black_24dp"
         android:title="Acount"
         />
+    <item
+        android:id="@+id/action_etc"
+        android:icon="@drawable/ic_more_horiz_black_24dp"
+        android:title="Etc"
+        />
 </menu>

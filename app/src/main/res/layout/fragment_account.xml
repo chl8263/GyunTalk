@@ -1,10 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_alignParentTop="true"
+        android:id="@+id/accountgragmnet_myView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/fragmentacount_myView_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp" />
+
+        <TextView
+            android:id="@+id/fragmentacount_myView_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="아이디" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center|right">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp">
+
+                <TextView
+                    android:id="@+id/fragmentacount_myView_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/leftbubble"
+                    android:backgroundTint="@color/colorSel"
+                    android:text="상태메세지" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 <Button
+    android:layout_marginTop="12dp"
+    android:layout_alignParentRight="true"
+    android:layout_below="@+id/accountgragmnet_myView"
     android:id="@+id/accountfragment_button_comment"
-    android:text="현재 상태 메세지"
+    android:text="상태메세지 변경"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" />
-</LinearLayout>
+</RelativeLayout>

@@ -12,16 +12,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.gyun_home.gyuntalk.R;
+import com.example.gyun_home.gyuntalk.model.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class AcountFragment  extends Fragment {
 
+    private ImageView imageView_myimage;
+    private TextView textView_myName;
+    private TextView textView_comment;
 
     public AcountFragment() {
     }
@@ -32,10 +43,15 @@ public class AcountFragment  extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account,container,false);
+
+        textView_myName = view.findViewById(R.id.fragmentacount_myView_name);
+        textView_comment = view.findViewById(R.id.fragmentacount_myView_comment);
+        imageView_myimage = view.findViewById(R.id.fragmentacount_myView_image);
 
         Button button = (Button)view.findViewById(R.id.accountfragment_button_comment);
         button.setOnClickListener(new View.OnClickListener() {
@@ -44,6 +60,30 @@ public class AcountFragment  extends Fragment {
                 showDialog(getContext());
             }
         });
+
+        String myUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference().child("users").child(myUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserModel userModel = dataSnapshot.getValue(UserModel.class);
+
+                textView_myName.setText(userModel.getUserName().toString());
+                if(userModel.getComment() != null) {
+                    textView_comment.setText(userModel.getComment().toString());
+                }
+
+                Glide.with(getContext())
+                        .load(userModel.getProfileImageUrl())
+                        .apply(new RequestOptions().circleCrop())
+                        .into(imageView_myimage);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         return view;
     }
 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.gyun_home.gyuntalk.R;
+import com.example.gyun_home.gyuntalk.chat.GroupMessageActivity;
 import com.example.gyun_home.gyuntalk.chat.MessageActivity;
 import com.example.gyun_home.gyuntalk.model.ChatModel;
 import com.example.gyun_home.gyuntalk.model.UserModel;
@@ -31,9 +32,10 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<ChatModel> chatModels = new ArrayList<>();
+    private ArrayList<String> keys = new ArrayList<>();
     private String uid;
     private ArrayList<String> destinationUsers = new ArrayList<>();
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
@@ -43,12 +45,13 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         this.context = context;
         this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/"+uid).equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/" + uid).equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 chatModels.clear();
-                for(DataSnapshot item : dataSnapshot.getChildren()){
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
                     chatModels.add(item.getValue(ChatModel.class));
+                    keys.add(item.getKey());
                 }
                 notifyDataSetChanged();
             }
@@ -63,18 +66,18 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat, parent, false);
         return new CustomViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-        final CustomViewHolder customViewHolder = (CustomViewHolder)holder;
+        final CustomViewHolder customViewHolder = (CustomViewHolder) holder;
         String destinationUid = null;
 
         //채팅방에 있는 유저를 전부 체크
-        for(String user: chatModels.get(position).users.keySet()){
-            if(!user.equals(uid)){
+        for (String user : chatModels.get(position).users.keySet()) {
+            if (!user.equals(uid)) {
                 destinationUid = user;
                 destinationUsers.add(destinationUid);
             }
@@ -99,32 +102,38 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
 
         //메세지를 내림차순으로 정렬후 마지막 메세지의 키값을 가져옴
-        Map<String,ChatModel.Comment> commentMap = new TreeMap<>(Collections.reverseOrder());
+        Map<String, ChatModel.Comment> commentMap = new TreeMap<>(Collections.reverseOrder());
         commentMap.putAll(chatModels.get(position).comments);
 
-        String lastMessageKey = (String)commentMap.keySet().toArray()[0];
-        customViewHolder.textView_last_messagge.setText(chatModels.get(position).comments.get(lastMessageKey).message);
-        ////////
+        if (commentMap.keySet().toArray().length > 0) {
 
+            String lastMessageKey = (String) commentMap.keySet().toArray()[0];
+            customViewHolder.textView_last_messagge.setText(chatModels.get(position).comments.get(lastMessageKey).message);
+
+            //unix time 을 현재 시간으로 컨버팅 하는 부분
+            long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
+            Date date = new Date(unixTime);
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+            String time = simpleDateFormat.format(date);
+
+            customViewHolder.textView_last_timestamp.setText(time);
+            //////////////////////////////
+        }
         customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), MessageActivity.class);
-                intent.putExtra("destinationUid",destinationUsers.get(position));
-
-                ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(v.getContext(),R.anim.fromright,R.anim.toleft);
-                context.startActivity(intent,activityOptions.toBundle());
+                Intent intent = null;
+                if (chatModels.get(position).users.size() > 2) {
+                    intent = new Intent(v.getContext(), GroupMessageActivity.class);
+                    intent.putExtra("destinationRoom",keys.get(position));
+                } else {
+                    intent = new Intent(v.getContext(), MessageActivity.class);
+                    intent.putExtra("destinationUid", destinationUsers.get(position));
+                }
+                ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(v.getContext(), R.anim.fromright, R.anim.toleft);
+                context.startActivity(intent, activityOptions.toBundle());
             }
         });
-
-        //unix time 을 현재 시간으로 컨버팅 하는 부분
-        long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
-        Date date = new Date(unixTime);
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-        String time = simpleDateFormat.format(date);
-        //////////////////////////////
-
-        customViewHolder.textView_last_timestamp.setText(time);
     }
 
     @Override
@@ -138,6 +147,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView textView_title;
         public TextView textView_last_messagge;
         public TextView textView_last_timestamp;
+
         public CustomViewHolder(View view) {
             super(view);
 

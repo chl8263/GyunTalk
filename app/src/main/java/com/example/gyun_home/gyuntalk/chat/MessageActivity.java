@@ -153,7 +153,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                         Log.e("!!!!!!!!!!","!!!!!!!!!!!");
                         for (DataSnapshot item : dataSnapshot.getChildren()) {
                             ChatModel chatModel = item.getValue(ChatModel.class);
-                            if(chatModel.users.containsKey(destinationUid)){
+                            if(chatModel.users.containsKey(destinationUid) &&chatModel.users.size() > 1){
                                 chatRoomUid = item.getKey();
                                 button.setEnabled(true);
 
@@ -173,7 +173,9 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        databaseReference.removeEventListener(valueEventListener);
+        if(valueEventListener != null) {
+            databaseReference.removeEventListener(valueEventListener);
+        }
         finish();
         overridePendingTransition(R.anim.fromleft,R.anim.toright);  //finish 밑에 들어가야 anmation 이 적용 가능하다
     }

@@ -20,13 +20,16 @@
         <activity android:name=".login.SignupActivity" />
         <activity android:name=".main.MainActivity" />
         <activity android:name=".animEffect.CustomProgressActivity" />
-        <activity android:name=".chat.MessageActivity"></activity>
-        <service
-            android:name=".clouldService.MyFirebaseMessagingService">
+        <activity android:name=".chat.MessageActivity" />
+
+        <service android:name=".clouldService.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".fragment.SelectFriendActivity" />
+        <activity android:name=".chat.GroupMessageActivity"></activity>
     </application>
 
 </manifest>

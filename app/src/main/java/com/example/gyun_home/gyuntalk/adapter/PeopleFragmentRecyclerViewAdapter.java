@@ -81,6 +81,9 @@ public class PeopleFragmentRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 context.startActivity(intent,activityOptions.toBundle());
             }
         });
+        if(userModels.get(position).getComment()!=null) {
+            ((CustomViewHolder) holder).textView_comment.setText(userModels.get(position).getComment());
+        }
     }
 
     @Override
@@ -91,12 +94,13 @@ public class PeopleFragmentRecyclerViewAdapter extends RecyclerView.Adapter<Recy
     private class CustomViewHolder extends RecyclerView.ViewHolder {
         public ImageView imageView;
         public TextView textView;
-
+        public TextView textView_comment;
 
         public CustomViewHolder(View view) {
             super(view);
             imageView = view.findViewById(R.id.friendItem_imageView);
             textView = view.findViewById(R.id.friendItem_textView);
+            textView_comment = (TextView)view.findViewById(R.id.frienditem_textView_comment);
         }
     }
 }

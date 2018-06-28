@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -49,6 +50,9 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     private RecyclerView recyclerView;
 
     private UserModel destinationUserModel = MessageActivityRecyclerViewAdapter.userModel;
+
+    public static DatabaseReference databaseReference;
+    public static ValueEventListener valueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +100,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    sendGcm();
+                                    //sendGcm();
                                     editText.setText("");
                                 }
                             });
@@ -109,10 +113,14 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     private void sendGcm(){
         Gson gson = new Gson();
 
+        String username = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+
         NotificationModel notificationModel = new NotificationModel();
         notificationModel.to = destinationUserModel.pushToken;
-        notificationModel.notification.title = "보낸이 아이디";
+        notificationModel.notification.title = username;
         notificationModel.notification.text = editText.getText().toString();
+        notificationModel.data.title = username;
+        notificationModel.data.text = editText.getText().toString();
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"),gson.toJson(notificationModel));
 
@@ -165,6 +173,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        databaseReference.removeEventListener(valueEventListener);
         finish();
         overridePendingTransition(R.anim.fromleft,R.anim.toright);  //finish 밑에 들어가야 anmation 이 적용 가능하다
     }

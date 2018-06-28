@@ -14,17 +14,23 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.gyun_home.gyuntalk.R;
+import com.example.gyun_home.gyuntalk.chat.MessageActivity;
 import com.example.gyun_home.gyuntalk.model.ChatModel;
 import com.example.gyun_home.gyuntalk.model.UserModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -64,17 +70,33 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
     }
 
     private void getMessageList() {
-        FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").addValueEventListener(new ValueEventListener() {
+        MessageActivity.databaseReference = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments");
+        MessageActivity.valueEventListener = MessageActivity.databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 comments.clear();
+
+                Map<String,Object> readUsersMap = new HashMap<>();
+
                 for (DataSnapshot item : dataSnapshot.getChildren()) {
-                    comments.add(item.getValue(ChatModel.Comment.class));
+                    String key = item.getKey();
+                    ChatModel.Comment comment = item.getValue(ChatModel.Comment.class);
+                    comment.readUsers.put(uid,true);
+
+                    readUsersMap.put(key,comment);
+                    comments.add(comment);
                 }
 
-                notifyDataSetChanged();     //새로고침
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").updateChildren(readUsersMap)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        notifyDataSetChanged();     //새로고침
 
-                recyclerView.scrollToPosition(comments.size()-1);
+                        recyclerView.scrollToPosition(comments.size()-1);
+                    }
+                });
+
             }
 
             @Override
@@ -102,6 +124,8 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
             messageViewHolder.textView_message.setBackgroundResource(R.drawable.rightbubble);
             messageViewHolder.linearLayout_destination.setVisibility(View.INVISIBLE);
             messageViewHolder.linearLayout_main.setGravity(Gravity.RIGHT);
+
+            setReadCounter(position,messageViewHolder.textView_readCounter_left);
         }else { //상대가 보낸 메세지
 
             Glide.with(holder.itemView.getContext())
@@ -115,6 +139,8 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
             messageViewHolder.textView_message.setText(comments.get(position).message);
             messageViewHolder.textView_message.setTextSize(25);
             messageViewHolder.linearLayout_main.setGravity(Gravity.LEFT);
+
+            setReadCounter(position,messageViewHolder.textView_readCounter_rigft);
         }
         //unix time 을 현재 시간으로 컨버팅 하는 부분
         long unixTime = (long) comments.get(position).timestamp;
@@ -124,6 +150,29 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
         //////////////////////////////
         messageViewHolder.textView_timeStamp.setText(time);
         ((MessageViewHolder) holder).textView_message.setText(comments.get(position).message);
+    }
+
+    private void setReadCounter (final int position, final TextView textView){
+        FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String,Boolean> users = (Map<String, Boolean>) dataSnapshot.getValue();
+
+                int count = users.size() - comments.get(position).readUsers.size();
+
+                if(count > 0){
+                    textView.setVisibility(View.VISIBLE);
+                    textView.setText(String.valueOf(count));
+                }else {
+                    textView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -139,6 +188,9 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
         public LinearLayout linearLayout_destination;
         public LinearLayout linearLayout_main;
         public TextView textView_timeStamp;
+        public TextView textView_readCounter_left;
+        public TextView textView_readCounter_rigft;
+
         public MessageViewHolder(View view) {
             super(view);
             textView_message = (TextView) view.findViewById(R.id.messageItem_textView_message);
@@ -147,6 +199,8 @@ public class MessageActivityRecyclerViewAdapter extends RecyclerView.Adapter<Rec
             linearLayout_destination = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_destination);
             linearLayout_main = (LinearLayout)view.findViewById(R.id.messageItem_linearlayout_main);
             textView_timeStamp = view.findViewById(R.id.messageItem_textView_timestamp);
+            textView_readCounter_left = view.findViewById(R.id.messageItem_textview_readCounter_left);
+            textView_readCounter_rigft = view.findViewById(R.id.messageItem_textview_readCounter_right);
         }
     }
 }

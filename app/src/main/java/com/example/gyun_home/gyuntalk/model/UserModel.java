@@ -4,6 +4,7 @@ public class UserModel {
     private String userName;
     private String profileImageUrl;
     private String uid;
+    private String comment;
     public String pushToken;
 
     public String getUserName() {
@@ -28,6 +29,14 @@ public class UserModel {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public String getPushToken() {
